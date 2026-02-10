@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Send, Bot, Circle } from 'lucide-react';
 import { fetchAgents, subscribeToAgents, DEPARTMENTS } from '../../../lib/supabase';
@@ -7,7 +7,6 @@ import type { Agent, ChatMessage } from '../../../types';
 
 export function AgentHive() {
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [filteredAgents, setFilteredAgents] = useState<Agent[]>([]);
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -20,7 +19,6 @@ export function AgentHive() {
   useEffect(() => {
     fetchAgents().then(data => {
       setAgents(data);
-      setFilteredAgents(data);
       setLoading(false);
     });
 
@@ -34,7 +32,9 @@ export function AgentHive() {
     return () => { unsubscribe(); };
   }, []);
 
-  useEffect(() => {
+  // Fixed: Using useMemo for derived state instead of useEffect to avoid cascading renders
+  // This computes filteredAgents on-demand based on current agents, selectedDept, and searchQuery
+  const filteredAgents = useMemo(() => {
     let result = agents;
     if (selectedDept !== 'All') {
       result = result.filter(a => a.department === selectedDept);
@@ -47,7 +47,7 @@ export function AgentHive() {
         a.specialty.toLowerCase().includes(q)
       );
     }
-    setFilteredAgents(result);
+    return result;
   }, [agents, selectedDept, searchQuery]);
 
   useEffect(() => {
