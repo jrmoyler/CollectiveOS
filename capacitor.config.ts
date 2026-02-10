@@ -1,5 +1,3 @@
-/// <reference types="@capacitor/cli" />
-
 /**
  * Capacitor Configuration for CollectiveOS Hybrid App
  *
