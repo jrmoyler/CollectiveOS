@@ -22,7 +22,6 @@ export function CommandPalette({ open, items, onClose }: CommandPaletteProps) {
 
   useEffect(() => {
     if (!open) return;
-    setQuery('');
     const frame = requestAnimationFrame(() => inputRef.current?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -43,9 +42,14 @@ export function CommandPalette({ open, items, onClose }: CommandPaletteProps) {
 
   if (!open) return null;
 
+  const closePalette = () => {
+    setQuery('');
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-[10020] flex items-start justify-center bg-[#02040a]/76 px-4 pt-[12vh] backdrop-blur-xl" role="dialog" aria-label="Command palette" aria-modal="true" onMouseDown={event => {
-      if (event.target === event.currentTarget) onClose();
+      if (event.target === event.currentTarget) closePalette();
     }}>
       <div className="w-full max-w-2xl overflow-hidden rounded-[18px] border border-white/[0.11] bg-[#080d16]/98 shadow-[0_40px_120px_rgba(0,0,0,0.72)]">
         <div className="flex h-14 items-center gap-3 border-b border-white/[0.07] px-4">
@@ -59,14 +63,14 @@ export function CommandPalette({ open, items, onClose }: CommandPaletteProps) {
             className="h-full min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-600"
           />
           <div className="hidden items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 font-mono text-[10px] text-slate-500 sm:flex"><Command className="h-3 w-3" /> K</div>
-          <button type="button" onClick={onClose} aria-label="Close command palette" className="rounded-lg p-1.5 text-slate-500 hover:bg-white/[0.05] hover:text-white"><X className="h-4 w-4" /></button>
+          <button type="button" onClick={closePalette} aria-label="Close command palette" className="rounded-lg p-1.5 text-slate-500 hover:bg-white/[0.05] hover:text-white"><X className="h-4 w-4" /></button>
         </div>
         <div className="max-h-[58vh] overflow-y-auto p-2">
           {results.length ? results.map(item => (
             <button
               key={item.id}
               type="button"
-              onClick={() => { item.onSelect(); onClose(); }}
+              onClick={() => { item.onSelect(); closePalette(); }}
               className="group grid w-full grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-white/[0.055]"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.025] font-mono text-[10px] text-[#d4a843]">{item.group.slice(0, 2).toUpperCase()}</div>
