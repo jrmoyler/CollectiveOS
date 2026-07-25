@@ -20,6 +20,15 @@ describe('ExecutionNodeClient', () => {
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer secret');
   });
 
+  it('authenticates embedded workspaces without changing their internal path', () => {
+    const client = new ExecutionNodeClient({ baseUrl: 'http://127.0.0.1:4280', token: 'secret' });
+    const url = new URL(client.embedUrl('comfyui', '/queue?tab=active'));
+
+    expect(url.pathname).toBe('/embed/comfyui/queue');
+    expect(url.searchParams.get('tab')).toBe('active');
+    expect(url.searchParams.get('access_token')).toBe('secret');
+  });
+
   it('uses allow-listed lifecycle endpoints instead of accepting command text', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ toolId: 'ollama', state: 'starting', ports: [11434], updatedAt: '2026-07-25T00:00:00.000Z' }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
