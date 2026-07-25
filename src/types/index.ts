@@ -1,4 +1,13 @@
-export type AppId = 'agent-hive' | 'crm' | 'c-u-later' | 'collect-a-sign' | 'browser';
+export type AppId =
+  | 'founder-cockpit'
+  | 'mission-control'
+  | 'agent-council'
+  | 'tool-forge'
+  | 'agent-hive'
+  | 'crm'
+  | 'c-u-later'
+  | 'collect-a-sign'
+  | 'browser';
 
 export interface WindowState {
   id: string;
