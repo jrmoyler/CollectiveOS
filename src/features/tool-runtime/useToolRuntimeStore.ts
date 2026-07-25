@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { executionNodeClient } from './executionNodeClient';
+import { toolManifests } from './manifests';
 import type {
   ExecutionNodeCapabilities,
   ExecutionNodeHealth,
@@ -42,26 +43,28 @@ interface ToolRuntimeStore {
   reset: () => void;
 }
 
-const INITIAL_STATE = {
-  nodeConnected: false,
-  nodeChecking: false,
-  health: null,
-  capabilities: null,
-  nodeError: null,
-  toolStatuses: {},
-  logsByTool: {},
-  jobs: [],
-  activeToolId: null,
-  workspaceOpen: false,
-  activeWorkspaceTab: 'workspace' as const,
-};
+function createInitialState() {
+  return {
+    nodeConnected: false,
+    nodeChecking: false,
+    health: null,
+    capabilities: null,
+    nodeError: null,
+    toolStatuses: {} as Record<string, ToolRuntimeStatus>,
+    logsByTool: Object.fromEntries(toolManifests.map(manifest => [manifest.id, [] as ToolRuntimeLog[]])),
+    jobs: [] as ToolJob[],
+    activeToolId: null,
+    workspaceOpen: false,
+    activeWorkspaceTab: 'workspace' as const,
+  };
+}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Execution node unavailable';
 }
 
 export const useToolRuntimeStore = create<ToolRuntimeStore>((set, get) => ({
-  ...INITIAL_STATE,
+  ...createInitialState(),
 
   setNodeState: input => set({
     nodeConnected: input.connected,
@@ -157,5 +160,5 @@ export const useToolRuntimeStore = create<ToolRuntimeStore>((set, get) => ({
     }
   },
 
-  reset: () => set({ ...INITIAL_STATE }),
+  reset: () => set(createInitialState()),
 }));
