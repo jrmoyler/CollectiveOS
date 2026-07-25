@@ -9,7 +9,7 @@ describe('CommandCenter', () => {
     expect(screen.getByRole('heading', { name: /Founder Cockpit/i })).toBeInTheDocument();
     expect(screen.getByText('Kre8trix Platform')).toBeInTheDocument();
     expect(screen.getByText('Exclusive Essence')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Orchestrate with Council/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Orchestrate with Council/i }).length).toBeGreaterThan(0);
   });
 
   it('filters the unified search across tools and projects', () => {
@@ -26,14 +26,14 @@ describe('CommandCenter', () => {
     const onOpenApp = vi.fn();
     render(<CommandCenter onOpenApp={onOpenApp} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Orchestrate with Council/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Orchestrate with Council/i })[0]);
     expect(onOpenApp).toHaveBeenCalledWith('agent-council');
   });
 
-  it('navigates to Tool Forge from the sidebar', () => {
+  it('navigates to Tool Forge from a responsive navigation control', () => {
     render(<CommandCenter onOpenApp={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /^Tool Forge$/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /^Tool Forge$/i })[0]);
     expect(screen.getByRole('heading', { name: /Open-source Tool Forge/i })).toBeInTheDocument();
   });
 });
