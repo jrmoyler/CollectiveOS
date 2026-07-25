@@ -59,13 +59,13 @@ const INITIAL_DEALS: CRMDeal[] = [
 
 function createWindow(appId: AppId, existingCount: number, zIndex: number): WindowState {
   const defaults = APP_DEFAULTS[appId];
-  const offset = (existingCount % 6) * 28;
+  const offset = (existingCount % 6) * 30;
   return {
     id: uuidv4(),
     appId,
     title: APP_TITLES[appId],
-    x: 48 + offset,
-    y: 48 + offset,
+    x: 80 + offset,
+    y: 60 + offset,
     width: defaults.width,
     height: defaults.height,
     isMinimized: false,
