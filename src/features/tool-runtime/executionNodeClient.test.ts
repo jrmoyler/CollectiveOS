@@ -14,9 +14,10 @@ describe('ExecutionNodeClient', () => {
     const health = await client.health();
 
     expect(health.ok).toBe(true);
-    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:4280/health', expect.objectContaining({
-      headers: expect.objectContaining({ Authorization: 'Bearer secret' }),
-    }));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('http://127.0.0.1:4280/health');
+    expect(new Headers(init.headers).get('Authorization')).toBe('Bearer secret');
   });
 
   it('uses allow-listed lifecycle endpoints instead of accepting command text', async () => {
