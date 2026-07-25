@@ -16,9 +16,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
+    /* Type safety; unused locals are enforced by ESLint. */
     "strict": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
