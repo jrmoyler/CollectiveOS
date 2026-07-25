@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "verify": "npm run lint && npm run test:run",
+    "dev:full": "node execution-node/dev-full.mjs",
+    "execution-node": "node execution-node/server.mjs",
+    "verify": "npm run lint && npm run test:execution-node && npm run test:run",
     "build": "npm run verify && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:execution-node": "node --test execution-node/*.test.mjs",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {

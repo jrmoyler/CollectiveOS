@@ -1,9 +1,9 @@
-name: HATAALII Phase One Quality
+name: HATAALII Intelligence Runtime Quality
 
 on:
   push:
     branches:
-      - feature/hataalii-command-center-phase1
+      - feature/hataalii-phase2-embedded-tool-runtime
   pull_request:
     branches:
       - main
@@ -14,7 +14,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,8 +31,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
+      - name: Execution node safety tests
+        run: npm run test:execution-node
+
+      - name: Browser and application tests
         run: npm run test:run
 
       - name: Build web application
-        run: npm run build
+        run: npx tsc -b && npx vite build

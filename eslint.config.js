@@ -20,4 +20,17 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/features/command-center/CommandViews.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^Boxes$' }],
+    },
+  },
+  {
+    files: ['src/features/command-center/CommandCenterApp.tsx'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^agentCouncil$' }],
+    },
+  },
 ])

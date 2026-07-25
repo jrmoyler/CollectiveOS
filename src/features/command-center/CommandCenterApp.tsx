@@ -1,6 +1,10 @@
-import { Bot, CircleDollarSign, ExternalLink, FolderKanban, Search, Wrench } from 'lucide-react';
-import { agentCouncil, collectiveProjects, commandMetrics, toolRegistry, ventureStreams } from './data';
-import { detectRuntimeCapabilities, getToolPrimaryAction } from './capabilities';
+import { useState } from 'react';
+import { ArrowRight, Bot, CircleDollarSign, CloudCog, FolderKanban, Search, Wrench } from 'lucide-react';
+import { CouncilComposer } from '../agent-council/CouncilComposer';
+import { getToolManifest } from '../tool-runtime/manifests';
+import { ToolWorkspace } from '../tool-runtime/ToolWorkspace';
+import { useToolRuntimeStore } from '../tool-runtime/useToolRuntimeStore';
+import { collectiveProjects, commandMetrics, toolRegistry, ventureStreams } from './data';
 
 export type CommandCenterAppMode = 'cockpit' | 'portfolio' | 'council' | 'tools';
 
@@ -11,7 +15,7 @@ interface CommandCenterAppProps {
 const MODE_COPY: Record<CommandCenterAppMode, { title: string; description: string }> = {
   cockpit: {
     title: 'Founder Cockpit',
-    description: 'The focused window view of JR Moyler’s active revenue, project, and execution signals.',
+    description: 'Focused revenue, project, infrastructure, and execution signals.',
   },
   portfolio: {
     title: 'Collective AI Mission Control',
@@ -19,126 +23,67 @@ const MODE_COPY: Record<CommandCenterAppMode, { title: string; description: stri
   },
   council: {
     title: 'Agent Council',
-    description: 'HATAALII, ZENITH, and specialized operators ready to coordinate execution.',
+    description: 'Compose and route scenario, debate, research, and build-swarm operations.',
   },
   tools: {
     title: 'Tool Forge',
-    description: 'Open-source frameworks and production tools registered inside CollectiveOS.',
+    description: 'Open-source production tools operating inside HATAALII OS.',
   },
 };
 
 export function CommandCenterApp({ mode }: CommandCenterAppProps) {
   const copy = MODE_COPY[mode];
+  const [activeToolId, setActiveToolId] = useState<string | null>(null);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#071020] text-slate-100">
-      <header className="border-b border-white/[0.06] px-5 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-semibold text-white">{copy.title}</h1>
-            <p className="mt-1 text-xs leading-5 text-slate-500">{copy.description}</p>
-          </div>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
-            {mode === 'cockpit' ? <CircleDollarSign className="h-4 w-4" /> : null}
-            {mode === 'portfolio' ? <FolderKanban className="h-4 w-4" /> : null}
-            {mode === 'council' ? <Bot className="h-4 w-4" /> : null}
-            {mode === 'tools' ? <Wrench className="h-4 w-4" /> : null}
-          </div>
+    <div className="flex h-full min-h-0 flex-col bg-[#05080e] text-slate-100">
+      <header className="flex min-h-14 shrink-0 items-center justify-between gap-4 border-b border-white/[0.065] bg-[#070b12]/92 px-4 py-3">
+        <div className="min-w-0"><h1 className="truncate text-lg font-semibold tracking-tight text-white">{copy.title}</h1><p className="mt-0.5 truncate text-[11px] text-slate-600">{copy.description}</p></div>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#d4a843]/20 bg-[#d4a843]/[0.07] text-[#d4a843]">
+          {mode === 'cockpit' ? <CircleDollarSign className="h-4 w-4" /> : null}
+          {mode === 'portfolio' ? <FolderKanban className="h-4 w-4" /> : null}
+          {mode === 'council' ? <Bot className="h-4 w-4" /> : null}
+          {mode === 'tools' ? <Wrench className="h-4 w-4" /> : null}
         </div>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto p-5">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {mode === 'cockpit' ? <CockpitWindow /> : null}
         {mode === 'portfolio' ? <PortfolioWindow /> : null}
-        {mode === 'council' ? <CouncilWindow /> : null}
-        {mode === 'tools' ? <ToolsWindow /> : null}
+        {mode === 'council' ? <CouncilComposer /> : null}
+        {mode === 'tools' ? activeToolId ? <ToolWorkspace toolId={activeToolId} compact /> : <ToolsWindow onTool={setActiveToolId} /> : null}
       </div>
     </div>
   );
 }
 
 function CockpitWindow() {
+  const nodeConnected = useToolRuntimeStore(state => state.nodeConnected);
   return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {commandMetrics.map(metric => (
-          <div key={metric.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
-            <div className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{metric.label}</div>
-            <div className="mt-3 text-2xl font-semibold text-white">{metric.value}</div>
-            <div className="mt-1 text-xs text-slate-400">{metric.detail}</div>
-          </div>
-        ))}
+    <div className="p-4">
+      <div className="grid overflow-hidden rounded-xl border border-white/[0.065] bg-[#080d15]/76 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-white/[0.06]">
+        {commandMetrics.map(metric => <div key={metric.id} className="border-b border-white/[0.06] p-4 last:border-0 lg:border-b-0"><div className="font-mono text-[9px] uppercase tracking-[0.14em] text-slate-600">{metric.label}</div><div className="mt-3 text-2xl font-semibold text-white">{metric.value}</div><div className="mt-1 text-[11px] text-slate-600">{metric.detail}</div></div>)}
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
-        <section className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
-          <h2 className="text-sm font-semibold text-white">Priority project queue</h2>
-          <div className="mt-3 space-y-2">
-            {collectiveProjects.slice(0, 5).map(project => (
-              <div key={project.id} className="rounded-xl bg-white/[0.03] p-3">
-                <div className="flex justify-between gap-3"><span className="text-sm text-white">{project.name}</span><span className="text-xs text-emerald-300">{project.progress}%</span></div>
-                <div className="mt-1 text-xs text-slate-500">{project.nextMilestone}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-        <section className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.05] p-4">
-          <h2 className="text-sm font-semibold text-emerald-200">Revenue lanes</h2>
-          <div className="mt-3 space-y-3">
-            {ventureStreams.slice(0, 5).map(stream => (
-              <div key={stream.id} className="flex items-center justify-between gap-3 text-xs"><span className="text-slate-300">{stream.name}</span><span className="text-white">{formatCurrency(stream.monthlyTarget)}</span></div>
-            ))}
-          </div>
-        </section>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <section className="overflow-hidden rounded-xl border border-white/[0.065] bg-[#070c13]/78"><div className="border-b border-white/[0.06] px-4 py-3 text-xs font-semibold text-white">Priority mission queue</div>{collectiveProjects.slice(0, 6).map(project => <div key={project.id} className="grid grid-cols-[minmax(0,1fr)_70px] gap-3 border-b border-white/[0.045] px-4 py-3 last:border-0"><div><div className="text-xs font-medium text-slate-200">{project.name}</div><div className="mt-1 line-clamp-1 text-[10px] text-slate-600">{project.nextMilestone}</div></div><div className="font-mono text-[10px] text-[#00d9b5]">{project.progress}%</div></div>)}</section>
+        <div className="space-y-4"><section className="rounded-xl border border-[#00d9b5]/12 bg-[#00d9b5]/[0.035] p-4"><div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.13em] text-[#65dac6]"><CloudCog className="h-3.5 w-3.5" /> Execution node</div><div className="mt-3 text-sm font-medium text-white">{nodeConnected ? 'Online' : 'Offline'}</div><div className="mt-1 text-[11px] text-slate-600">Embedded services and native tools</div></section><section className="rounded-xl border border-[#d4a843]/14 bg-[#d4a843]/[0.035] p-4"><div className="font-mono text-[9px] uppercase tracking-[0.13em] text-[#d4a843]">Revenue lanes</div><div className="mt-3 space-y-2">{ventureStreams.slice(0, 4).map(stream => <div key={stream.id} className="flex justify-between gap-3 text-[11px]"><span className="truncate text-slate-500">{stream.name}</span><span className="text-slate-300">{formatCurrency(stream.monthlyTarget)}</span></div>)}</div></section></div>
       </div>
     </div>
   );
 }
 
 function PortfolioWindow() {
-  return (
-    <div className="grid gap-3 md:grid-cols-2">
-      {collectiveProjects.map(project => (
-        <article key={project.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
-          <div className="flex items-center justify-between gap-4"><h2 className="font-medium text-white">{project.name}</h2><span className="text-xs text-emerald-300">{project.progress}%</span></div>
-          <p className="mt-2 text-xs leading-5 text-slate-500">{project.description}</p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-800"><div className="h-full rounded-full bg-emerald-400" style={{ width: `${project.progress}%` }} /></div>
-          <div className="mt-3 text-xs text-slate-400">{project.nextMilestone}</div>
-        </article>
-      ))}
-    </div>
-  );
+  return <div className="p-4"><div className="overflow-hidden rounded-xl border border-white/[0.065] bg-[#070c13]/78">{collectiveProjects.map(project => <article key={project.id} className="grid gap-2 border-b border-white/[0.045] px-4 py-3 last:border-0 md:grid-cols-[minmax(150px,1fr)_100px_90px_minmax(190px,1.3fr)] md:items-center"><div><div className="text-xs font-medium text-white">{project.name}</div><div className="mt-1 line-clamp-1 text-[10px] text-slate-600">{project.description}</div></div><div className="font-mono text-[9px] uppercase text-[#86a7b9]">{project.kind}</div><div><div className="font-mono text-[9px] text-[#00d9b5]">{project.progress}%</div><div className="mt-1 h-1 bg-white/[0.05]"><div className="h-full bg-[#00d9b5]" style={{ width: `${project.progress}%` }} /></div></div><div className="text-[10px] leading-4 text-slate-600">{project.nextMilestone}</div></article>)}</div></div>;
 }
 
-function CouncilWindow() {
+function ToolsWindow({ onTool }: { onTool: (toolId: string) => void }) {
+  const [query, setQuery] = useState('');
+  const statuses = useToolRuntimeStore(state => state.toolStatuses);
+  const normalized = query.trim().toLocaleLowerCase();
+  const tools = normalized ? toolRegistry.filter(tool => [tool.name, tool.category, tool.description, ...tool.tags].some(value => value.toLocaleLowerCase().includes(normalized))) : toolRegistry;
   return (
-    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-      {agentCouncil.map(agent => (
-        <article key={agent.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
-          <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300"><Bot className="h-4 w-4" /></div><div><h2 className="text-sm font-medium text-white">{agent.name}</h2><div className="text-xs text-emerald-300">{agent.role}</div></div></div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">{agent.description}</p>
-          <div className="mt-3 text-[10px] uppercase tracking-[0.14em] text-slate-600">{agent.framework}</div>
-        </article>
-      ))}
-    </div>
-  );
-}
-
-function ToolsWindow() {
-  const capabilities = detectRuntimeCapabilities();
-  return (
-    <div>
-      <div className="relative mb-4"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" /><input readOnly value="" aria-label="Tool search is available in the full command center" placeholder="Use full Tool Forge for search and filters" className="h-10 w-full rounded-xl border border-white/[0.07] bg-white/[0.03] pl-10 pr-3 text-xs text-slate-400 outline-none" /></div>
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {toolRegistry.slice(0, 24).map(tool => {
-          const action = getToolPrimaryAction(tool, capabilities);
-          return (
-            <article key={tool.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
-              <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-medium text-white">{tool.name}</h2><div className="mt-1 text-xs text-sky-300">{tool.category}</div></div><a href={tool.repository} target="_blank" rel="noreferrer" aria-label={`Open ${tool.name} repository`} className="text-slate-500 hover:text-white"><ExternalLink className="h-4 w-4" /></a></div>
-              <p className="mt-3 text-xs leading-5 text-slate-500">{tool.description}</p>
-              <div className="mt-4 rounded-lg bg-white/[0.035] px-3 py-2 text-center text-xs text-emerald-300">{action.label}</div>
-            </article>
-          );
-        })}
-      </div>
+    <div className="p-4">
+      <div className="relative mb-3"><Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-700" /><input value={query} onChange={event => setQuery(event.target.value)} aria-label="Search Tool Forge" placeholder="Search embedded tools" className="h-10 w-full rounded-lg border border-white/[0.07] bg-white/[0.02] pl-9 pr-3 text-xs text-slate-300 outline-none focus:border-[#d4a843]/25" /></div>
+      <div className="overflow-hidden rounded-xl border border-white/[0.065] bg-[#070c13]/78">{tools.map(tool => { const manifest = getToolManifest(tool.id); const state = statuses[tool.id]?.state ?? (manifest?.recipe ? 'installable' : 'discovered'); return <button key={tool.id} type="button" onClick={() => onTool(tool.id)} aria-label={`Open ${tool.name} workspace`} className="group grid w-full gap-2 border-b border-white/[0.045] px-4 py-3 text-left last:border-0 hover:bg-white/[0.025] md:grid-cols-[minmax(160px,1fr)_120px_100px_110px] md:items-center"><div><div className="flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${state === 'running' ? 'bg-[#00d9b5]' : 'bg-slate-700'}`} /><span className="text-xs font-medium text-white">{tool.name}</span></div><div className="mt-1 line-clamp-1 text-[10px] text-slate-600">{tool.description}</div></div><div className="text-[10px] text-[#86a7b9]">{tool.category}</div><div className="font-mono text-[9px] uppercase text-slate-600">{manifest?.adapter}</div><div className="flex items-center justify-between font-mono text-[9px] uppercase text-[#d4a843]">Open inside OS <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5" /></div></button>; })}</div>
     </div>
   );
 }
