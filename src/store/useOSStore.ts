@@ -74,24 +74,28 @@ function createWindow(appId: AppId, existingCount: number, zIndex: number): Wind
   };
 }
 
+function highestWindowId(windows: WindowState[]): string | null {
+  return [...windows].sort((a, b) => b.zIndex - a.zIndex)[0]?.id ?? null;
+}
+
 export const useOSStore = create<OSStore>((set, get) => ({
   windows: [],
   activeWindowId: null,
   nextZIndex: 100,
 
   openApp: appId => {
-    const existing = get().windows.find(window => window.appId === appId && !window.isMinimized);
+    const existing = get().windows.find(windowState => windowState.appId === appId && !windowState.isMinimized);
     if (existing) {
       get().focusWindow(existing.id);
       return;
     }
 
-    const minimized = get().windows.find(window => window.appId === appId && window.isMinimized);
+    const minimized = get().windows.find(windowState => windowState.appId === appId && windowState.isMinimized);
     if (minimized) {
       set(state => ({
-        windows: state.windows.map(window => window.id === minimized.id
-          ? { ...window, isMinimized: false, zIndex: state.nextZIndex }
-          : window),
+        windows: state.windows.map(windowState => windowState.id === minimized.id
+          ? { ...windowState, isMinimized: false, zIndex: state.nextZIndex }
+          : windowState),
         activeWindowId: minimized.id,
         nextZIndex: state.nextZIndex + 1,
       }));
@@ -107,45 +111,42 @@ export const useOSStore = create<OSStore>((set, get) => ({
   },
 
   closeWindow: id => set(state => {
-    const remaining = state.windows.filter(window => window.id !== id);
-    const nextActive = remaining.toSorted((a, b) => b.zIndex - a.zIndex)[0]?.id ?? null;
+    const remaining = state.windows.filter(windowState => windowState.id !== id);
     return {
       windows: remaining,
-      activeWindowId: state.activeWindowId === id ? nextActive : state.activeWindowId,
+      activeWindowId: state.activeWindowId === id ? highestWindowId(remaining) : state.activeWindowId,
     };
   }),
 
   focusWindow: id => set(state => ({
-    windows: state.windows.map(window => window.id === id ? { ...window, zIndex: state.nextZIndex } : window),
+    windows: state.windows.map(windowState => windowState.id === id ? { ...windowState, zIndex: state.nextZIndex } : windowState),
     activeWindowId: id,
     nextZIndex: state.nextZIndex + 1,
   })),
 
   minimizeWindow: id => set(state => {
-    const windows = state.windows.map(window => window.id === id ? { ...window, isMinimized: true } : window);
-    const nextActive = windows
-      .filter(window => !window.isMinimized && window.id !== id)
-      .toSorted((a, b) => b.zIndex - a.zIndex)[0]?.id ?? null;
+    const windows = state.windows.map(windowState => windowState.id === id ? { ...windowState, isMinimized: true } : windowState);
+    const visible = windows.filter(windowState => !windowState.isMinimized && windowState.id !== id);
     return {
       windows,
-      activeWindowId: state.activeWindowId === id ? nextActive : state.activeWindowId,
+      activeWindowId: state.activeWindowId === id ? highestWindowId(visible) : state.activeWindowId,
     };
   }),
 
   maximizeWindow: id => set(state => ({
-    windows: state.windows.map(window => window.id === id
-      ? { ...window, isMaximized: !window.isMaximized, zIndex: state.nextZIndex }
-      : window),
+    windows: state.windows.map(windowState => windowState.id === id
+      ? { ...windowState, isMaximized: !windowState.isMaximized, zIndex: state.nextZIndex }
+      : windowState),
     activeWindowId: id,
     nextZIndex: state.nextZIndex + 1,
   })),
 
   updateWindowPosition: (id, x, y) => set(state => ({
-    windows: state.windows.map(window => window.id === id ? { ...window, x, y } : window),
+    windows: state.windows.map(windowState => windowState.id === id ? { ...windowState, x, y } : windowState),
   })),
 
   updateWindowSize: (id, width, height) => set(state => ({
-    windows: state.windows.map(window => window.id === id ? { ...window, width, height } : window),
+    windows: state.windows.map(windowState => windowState.id === id ? { ...windowState, width, height } : windowState),
   })),
 
   activeDepartment: 'Founder Command',
@@ -175,8 +176,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
       return { browserTabs: [{ id: uuidv4(), title: 'New Tab', url: 'https://www.google.com', isActive: true }] };
     }
     if (state.browserTabs.find(tab => tab.id === id)?.isActive) {
-      const last = remaining.at(-1);
-      return { browserTabs: remaining.map(tab => ({ ...tab, isActive: tab.id === last?.id })) };
+      const last = remaining[remaining.length - 1];
+      return { browserTabs: remaining.map(tab => ({ ...tab, isActive: tab.id === last.id })) };
     }
     return { browserTabs: remaining };
   }),
