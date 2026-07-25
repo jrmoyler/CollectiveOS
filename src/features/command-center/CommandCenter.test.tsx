@@ -8,8 +8,10 @@ describe('CommandCenter', () => {
 
     expect(screen.getByRole('heading', { name: /Founder Cockpit/i })).toBeInTheDocument();
     expect(screen.getByText('Kre8trix Platform')).toBeInTheDocument();
-    expect(screen.getByText('Exclusive Essence')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Orchestrate with Council/i }).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /Collective Portfolio/i })[0]);
+    expect(screen.getByText('Exclusive Essence')).toBeInTheDocument();
   });
 
   it('filters the unified search across tools and projects', () => {
