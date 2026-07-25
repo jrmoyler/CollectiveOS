@@ -16,8 +16,8 @@ describe('CouncilComposer', () => {
 
   it('routes scenario work to MiroFish and debate work to AutoGen', () => {
     render(<CouncilComposer />);
-    expect(screen.getByText(/MiroFish/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/MiroFish/i).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: /Debate/i }));
-    expect(screen.getByText(/AutoGen/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/AutoGen/i).length).toBeGreaterThan(0);
   });
 });
