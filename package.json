@@ -1,17 +1,20 @@
 {
   "name": "collectiveos",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "verify": "npm run lint && npm run test:run",
+    "dev:full": "node execution-node/dev-full.mjs",
+    "execution-node": "node execution-node/server.mjs",
+    "verify": "npm run lint && npm run test:execution-node && npm run test:run",
     "build": "npm run verify && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:execution-node": "node --test execution-node/*.test.mjs",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
@@ -44,7 +47,7 @@
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.24",
     "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.0",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "jsdom": "^28.0.0",
