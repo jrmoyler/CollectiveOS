@@ -42,6 +42,6 @@ describe('ToolWorkspace', () => {
   it('switches between workspace and logs without leaving the OS', () => {
     render(<ToolWorkspace toolId="comfyui" />);
     fireEvent.click(screen.getByRole('button', { name: /Logs/i }));
-    expect(screen.getByText(/Runtime logs/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Runtime logs/i).length).toBeGreaterThan(0);
   });
 });
