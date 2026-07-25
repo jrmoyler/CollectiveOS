@@ -1,4 +1,5 @@
 import type { AppId } from '../../types';
+import { CommandCenterApp } from '../../features/command-center/CommandCenterApp';
 import { AgentHive } from './agent-hive/AgentHive';
 import { CollectiveCRM } from './crm/CollectiveCRM';
 import { CULater } from './c-u-later/CULater';
@@ -11,6 +12,14 @@ interface Props {
 
 export function AppContent({ appId }: Props) {
   switch (appId) {
+    case 'founder-cockpit':
+      return <CommandCenterApp mode="cockpit" />;
+    case 'mission-control':
+      return <CommandCenterApp mode="portfolio" />;
+    case 'agent-council':
+      return <CommandCenterApp mode="council" />;
+    case 'tool-forge':
+      return <CommandCenterApp mode="tools" />;
     case 'agent-hive':
       return <AgentHive />;
     case 'crm':
@@ -22,6 +31,6 @@ export function AppContent({ appId }: Props) {
     case 'browser':
       return <BrowserApp />;
     default:
-      return <div className="flex items-center justify-center h-full text-slate-500">Unknown App</div>;
+      return <div className="flex h-full items-center justify-center text-slate-500">Unknown App</div>;
   }
 }
