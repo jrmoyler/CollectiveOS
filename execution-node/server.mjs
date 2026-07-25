@@ -12,6 +12,12 @@ const PORT = Number(process.env.HATAALII_EXECUTION_PORT ?? 4280);
 const TOKEN = process.env.HATAALII_EXECUTION_TOKEN;
 const VERSION = '2.0.0';
 const STARTED_AT = Date.now();
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
+
+if (!LOOPBACK_HOSTS.has(HOST) && !TOKEN) {
+  throw new Error('HATAALII_EXECUTION_TOKEN is required when the execution node binds beyond loopback.');
+}
+
 const manager = new RuntimeManager({ recipes: toolRecipes });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -85,7 +91,15 @@ function embedTarget(url) {
   const tool = toolRecipeMap.get(toolId);
   const port = tool?.recipe?.uiPort ?? tool?.ports?.[0];
   if (!tool || !port) return null;
-  return { toolId, port, path: `${match[2] ?? '/'}${url.search}` };
+
+  const upstreamQuery = new URLSearchParams(url.searchParams);
+  upstreamQuery.delete('access_token');
+  const query = upstreamQuery.toString();
+  return {
+    toolId,
+    port,
+    path: `${match[2] ?? '/'}${query ? `?${query}` : ''}`,
+  };
 }
 
 function proxyHttp(req, res, url, target) {
@@ -214,7 +228,7 @@ server.on('upgrade', (req, socket, head) => {
 server.listen(PORT, HOST, () => {
   console.log(`HATAALII execution node ${VERSION} listening on http://${HOST}:${PORT}`);
   if (TOKEN) console.log('Bearer authentication enabled.');
-  else console.log('Loopback mode without bearer authentication. Set HATAALII_EXECUTION_TOKEN before remote binding.');
+  else console.log('Loopback mode without bearer authentication.');
 });
 
 const shutdown = () => server.close(() => process.exit(0));
