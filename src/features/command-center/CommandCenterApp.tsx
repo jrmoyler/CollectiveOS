@@ -4,7 +4,7 @@ import { CouncilComposer } from '../agent-council/CouncilComposer';
 import { getToolManifest } from '../tool-runtime/manifests';
 import { ToolWorkspace } from '../tool-runtime/ToolWorkspace';
 import { useToolRuntimeStore } from '../tool-runtime/useToolRuntimeStore';
-import { agentCouncil, collectiveProjects, commandMetrics, toolRegistry, ventureStreams } from './data';
+import { collectiveProjects, commandMetrics, toolRegistry, ventureStreams } from './data';
 
 export type CommandCenterAppMode = 'cockpit' | 'portfolio' | 'council' | 'tools';
 
