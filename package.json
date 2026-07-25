@@ -1,7 +1,7 @@
 {
   "name": "collectiveos",
   "private": true,
-  "version": "2.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -47,7 +47,7 @@
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.24",
     "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.1.0",
+    "eslint-plugin-react-hooks": "^6.9.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "jsdom": "^28.0.0",
