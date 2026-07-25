@@ -86,7 +86,9 @@ export class ExecutionNodeClient {
 
   embedUrl(toolId: string, path = '/'): string {
     const safePath = path.startsWith('/') ? path.slice(1) : path;
-    return `${this.baseUrl}/embed/${encodeURIComponent(toolId)}/${safePath}`;
+    const url = new URL(`${this.baseUrl}/embed/${encodeURIComponent(toolId)}/${safePath}`);
+    if (this.token) url.searchParams.set('access_token', this.token);
+    return url.toString();
   }
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
