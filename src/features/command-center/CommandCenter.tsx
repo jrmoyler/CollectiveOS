@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Bot,
   CircleDollarSign,
@@ -34,6 +34,8 @@ const NAVIGATION: IntelligenceNavigationItem[] = [
   { id: 'council', label: 'Agent Council', icon: Bot, count: agentCouncil.length },
   { id: 'tools', label: 'Tool Forge', icon: Wrench, count: toolRegistry.length },
 ];
+
+const NOOP_OPEN_APP = () => undefined;
 
 export function CommandCenter({ onOpenApp }: CommandCenterProps) {
   const [section, setSection] = useState<CommandSection>('cockpit');
@@ -75,7 +77,7 @@ export function CommandCenter({ onOpenApp }: CommandCenterProps) {
     if (result.type === 'tool') selectTool(result.id);
   };
 
-  const commandItems = useMemo<CommandPaletteItem[]>(() => [
+  const commandItems: CommandPaletteItem[] = [
     ...NAVIGATION.map(item => ({
       id: `section-${item.id}`,
       label: item.label,
@@ -107,10 +109,10 @@ export function CommandCenter({ onOpenApp }: CommandCenterProps) {
       keywords: tool.tags,
       onSelect: () => selectTool(tool.id),
     })),
-  ], []);
+  ];
 
   const analysis = section === 'cockpit'
-    ? <CockpitView onNavigate={navigate as (section: CommandSection) => void} onOpenApp={onOpenApp ?? (() => undefined)} onProject={selectProject} onTool={selectTool} />
+    ? <CockpitView onNavigate={navigate as (next: CommandSection) => void} onOpenApp={onOpenApp ?? NOOP_OPEN_APP} onProject={selectProject} onTool={selectTool} />
     : section === 'portfolio'
       ? <PortfolioView onProject={selectProject} />
       : section === 'revenue'
